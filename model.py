@@ -5,7 +5,7 @@ import os
 import numpy as np
 
 from layer import *
-
+import time
 import args
 
 
@@ -187,13 +187,46 @@ class MGEGFP(nn.Module):
 		score4 = torch.empty(6400, 6).to(device)
 		score5 = torch.empty(6400, 6).to(device)
 
-		for i in range(6):
-			score0[:,i] = self.gate0[i](z[i]).squeeze()
-			score1[:,i] = self.gate1[i](z[i]).squeeze()
-			score2[:,i] = self.gate2[i](z[i]).squeeze()
-			score3[:,i] = self.gate3[i](z[i]).squeeze()
-			score4[:,i] = self.gate4[i](z[i]).squeeze()
-			score5[:,i] = self.gate5[i](z[i]).squeeze()
+
+		if args.act_mg == 'relu':
+			for i in range(6):
+				score0[:,i] = F.relu(self.gate0[i](z[i]).squeeze())
+				score1[:,i] = F.relu(self.gate1[i](z[i]).squeeze())
+				score2[:,i] = F.relu(self.gate2[i](z[i]).squeeze())
+				score3[:,i] = F.relu(self.gate3[i](z[i]).squeeze())
+				score5[:,i] = F.relu(self.gate5[i](z[i]).squeeze())
+				score4[:,i] = F.relu(self.gate4[i](z[i]).squeeze())
+
+		elif args.act_mg == 'none':
+			for i in range(6):
+				score0[:,i] = self.gate0[i](z[i]).squeeze()
+				score1[:,i] = self.gate1[i](z[i]).squeeze()
+				score2[:,i] = self.gate2[i](z[i]).squeeze()
+				score3[:,i] = self.gate3[i](z[i]).squeeze()
+				score4[:,i] = self.gate4[i](z[i]).squeeze()
+				score5[:,i] = self.gate5[i](z[i]).squeeze()
+
+		elif args.act_mg == 'tanh':
+			for i in range(6):
+				score0[:,i] = F.tanh(self.gate0[i](z[i]).squeeze())
+				score1[:,i] = F.tanh(self.gate1[i](z[i]).squeeze())
+				score2[:,i] = F.tanh(self.gate2[i](z[i]).squeeze())
+				score3[:,i] = F.tanh(self.gate3[i](z[i]).squeeze())
+				score5[:,i] = F.tanh(self.gate5[i](z[i]).squeeze())
+				score4[:,i] = F.tanh(self.gate4[i](z[i]).squeeze())
+
+		elif args.act_mg == 'leakyrelu':
+			for i in range(6):
+				score0[:,i] = F.leaky_relu(self.gate0[i](z[i]).squeeze())
+				score1[:,i] = F.leaky_relu(self.gate1[i](z[i]).squeeze())
+				score2[:,i] = F.leaky_relu(self.gate2[i](z[i]).squeeze())
+				score3[:,i] = F.leaky_relu(self.gate3[i](z[i]).squeeze())
+				score5[:,i] = F.leaky_relu(self.gate5[i](z[i]).squeeze())
+				score4[:,i] = F.leaky_relu(self.gate4[i](z[i]).squeeze())
+
+
+		else:
+			print('wrong activation type')
 
 
 
@@ -211,6 +244,8 @@ class MGEGFP(nn.Module):
 		z_global_3 = (score3[:,0].view(-1, 1))*z0 + (score3[:,1].view(-1, 1))*z1 + (score3[:,2].view(-1, 1))*z2 + (score3[:,3].view(-1, 1))*z3 + (score3[:,4].view(-1, 1))*z4 + (score3[:,5].view(-1, 1))*z5
 		z_global_4 = (score4[:,0].view(-1, 1))*z0 + (score4[:,1].view(-1, 1))*z1 + (score4[:,2].view(-1, 1))*z2 + (score4[:,3].view(-1, 1))*z3 + (score4[:,4].view(-1, 1))*z4 + (score4[:,5].view(-1, 1))*z5
 		z_global_5 = (score5[:,0].view(-1, 1))*z0 + (score5[:,1].view(-1, 1))*z1 + (score5[:,2].view(-1, 1))*z2 + (score5[:,3].view(-1, 1))*z3 + (score5[:,4].view(-1, 1))*z4 + (score5[:,5].view(-1, 1))*z5
+
+
 
 
 
